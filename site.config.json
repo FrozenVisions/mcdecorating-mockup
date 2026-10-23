@@ -1,0 +1,24 @@
+{
+  "baseUrl": "https://mcdecorating.wholelottasites.co.uk",
+  "noindex": true,
+  "robotsDisallowAll": true,
+  "siteUpdated": "2026-10-23",
+  "name": "MC Decorating",
+  "founder": "Martin Kelly",
+  "phoneDisplay": "07907 588 541",
+  "phoneTel": "+447907588541",
+  "email": "martink.kelly@yahoo.co.uk",
+  "whatsapp": "https://wa.me/447907588541",
+  "facebook": "https://www.facebook.com/p/MC-Decorating-61573444553395/",
+  "facebookTitle": "MC Decorating | Omagh",
+  "formAction": "https://formsubmit.co/chris@wholelottasites.co.uk",
+  "formCc": "martink.kelly@yahoo.co.uk",
+  "formSubject": "New quote request - MC Decorating website",
+  "addressLocality": "Omagh",
+  "addressRegion": "County Tyrone",
+  "addressCountry": "GB",
+  "geo": {
+    "latitude": 54.5977,
+    "longitude": -7.3096
+  }
+}
