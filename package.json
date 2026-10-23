@@ -1,0 +1,10 @@
+{
+  "name": "mcdecorating",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "optimise-image": "node scripts/optimise-image.mjs"
+  }
+}
