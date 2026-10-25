@@ -2,7 +2,9 @@
 
 Website for MC Decorating, Martin Kelly's painting and decorating business in Omagh, County Tyrone. It is a static site for GitHub Pages. The aim is to get local people to ask for a quote, not to sell from a shop.
 
-The live hostname, until the final domain is chosen, is `mcdecorating.wholelottasites.co.uk`. Do not change `CNAME` until that domain is actually pointed here.
+The public site is [https://mcdecoratingni.co.uk](https://mcdecoratingni.co.uk). `CNAME` is `mcdecoratingni.co.uk`, which is the canonical host. DNS for the apex already points at GitHub Pages, and `www.mcdecoratingni.co.uk` is a CNAME to `frozenvisions.github.io`. GitHub Pages keeps a single custom domain, so with the apex in `CNAME` it redirects `www` to `https://mcdecoratingni.co.uk`.
+
+The earlier hostname `mcdecorating.wholelottasites.co.uk` cannot stay attached to this Pages site at the same time. To keep old links working, add a redirect on the `wholelottasites.co.uk` DNS host from that hostname to `https://mcdecoratingni.co.uk`.
 
 ## Contact details in use
 
@@ -19,10 +21,11 @@ The quote form posts to FormSubmit at `chris@wholelottasites.co.uk` and copies `
 
 `site.config.json` is the only place the public site address is set.
 
-1. Set `baseUrl` to the new origin, with `https://` and no trailing slash. For example `https://mcdecoratingomagh.co.uk`.
+1. Set `baseUrl` to the new origin, with `https://` and no trailing slash.
 2. Run `node scripts/build.mjs`.
+3. Set `CNAME` to that hostname, with nothing else on the line. `check` expects `CNAME` to match the `baseUrl` host.
 
-That rewrites canonical URLs, Open Graph tags, the sitemap, both feeds, the business schema, and the form's return address. It does not change `CNAME`. Change `CNAME` only when DNS for the new hostname is ready.
+That rewrites canonical URLs, Open Graph tags, the sitemap, both feeds, the business schema, and the form's return address. The current origin is `https://mcdecoratingni.co.uk`.
 
 ## Add a gallery job
 
@@ -59,40 +62,21 @@ node scripts/build.mjs
 node scripts/check.mjs
 ```
 
-`check` confirms internal links, one heading per page, the FormSubmit action, the noindex tag, the restrictive `robots.txt`, `CNAME`, gallery images, and that the sitemap matches real pages.
+`check` confirms internal links, one heading per page, the FormSubmit action and `_next` return address, the robots meta tag, `robots.txt`, `CNAME`, gallery images, and that the sitemap matches real pages. It also fails if a built HTML, XML or text file still names the retired hostname `mcdecorating.wholelottasites.co.uk`.
 
 Generated HTML is what GitHub Pages serves. Source copy for towns, services and articles lives in `content/`. The gallery data lives in `data/jobs.json`.
 
 ## Launch checklist
 
-Indexing is off on purpose. Leave it off until the final domain is the one visitors and Google should see.
+Indexing is on. The canonical host is `mcdecoratingni.co.uk`. Pages use `<meta name="robots" content="index, follow">`, and `robots.txt` allows crawling and points at `https://mcdecoratingni.co.uk/sitemap.xml`.
 
-When that domain is chosen (`mcdecoratingomagh.co.uk`, `mcdecoratingni.co.uk`, or another):
+Still to do outside this repository:
 
-1. Point DNS at GitHub Pages for the new hostname.
-2. Replace the contents of `CNAME` with that hostname and nothing else. Do this only once DNS is ready.
-3. In `site.config.json`, set `baseUrl` to `https://` plus that hostname, with no trailing slash.
-4. Set `"noindex": false`.
-5. Set `"robotsDisallowAll": false`.
-6. Run `node scripts/build.mjs`.
-7. Confirm a page's source:
-   - canonical and `og:url` use the new domain
-   - the robots meta tag says `index, follow`
-   - the quote form `_next` field uses the new domain
-8. Confirm `robots.txt` is now:
-
-   ```
-   User-agent: *
-   Allow: /
-
-   Sitemap: https://YOUR-DOMAIN/sitemap.xml
-   ```
-
-9. Send a test through the quote form and confirm it arrives for Martin (and at the FormSubmit inbox named in `formAction`).
-10. On a phone, use the call button and the WhatsApp button.
-11. In Google Search Console and Bing Webmaster Tools, add the property and submit `sitemap.xml`.
-
-Until those flags are flipped, every page keeps `<meta name="robots" content="noindex, nofollow">` and `robots.txt` disallows all crawlers. The sitemap is still published so it is ready.
+1. In the GitHub Pages settings, confirm the custom domain is `mcdecoratingni.co.uk` and turn on Enforce HTTPS once the certificate is issued. `www` stays as the DNS alias above; do not put `www` in `CNAME`, or the canonical host would flip.
+2. Send a test through the quote form and confirm it arrives for Martin (and at the FormSubmit inbox named in `formAction`). The form still posts to `chris@wholelottasites.co.uk` and copies `martink.kelly@yahoo.co.uk`. The `_next` address is on `https://mcdecoratingni.co.uk`.
+3. On a phone, use the call button and the WhatsApp button.
+4. In Google Search Console and Bing Webmaster Tools, add the property and submit `sitemap.xml`.
+5. If old links should keep working, redirect `mcdecorating.wholelottasites.co.uk` to `https://mcdecoratingni.co.uk` at that hostname's DNS host. This Pages site can only publish one custom domain.
 
 ## What this site deliberately does not say
 

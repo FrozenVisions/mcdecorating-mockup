@@ -1,8 +1,8 @@
 {
-  "baseUrl": "https://mcdecorating.wholelottasites.co.uk",
-  "noindex": true,
-  "robotsDisallowAll": true,
-  "siteUpdated": "2026-10-23",
+  "baseUrl": "https://mcdecoratingni.co.uk",
+  "noindex": false,
+  "robotsDisallowAll": false,
+  "siteUpdated": "2026-10-25",
   "name": "MC Decorating",
   "founder": "Martin Kelly",
   "phoneDisplay": "07907 588 541",
