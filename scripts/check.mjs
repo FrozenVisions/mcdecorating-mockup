@@ -27,20 +27,26 @@ function walk(dir, out = []) {
 const files = walk(root);
 const htmlFiles = files.filter((file) => file.endsWith(".html"));
 const banned = /\b(mock-?up|demo|preview)\b/i;
+const retiredHost = "mcdecorating.wholelottasites.co.uk";
 
 for (const file of files) {
   if (!/\.(html|css|js|json|md|xml|txt)$/.test(file)) continue;
   const text = readFileSync(file, "utf8");
   if (banned.test(text)) fail(`${file.replace(root, "")} contains mock, demo or preview wording`);
+  if (/\.(html|xml|txt)$/.test(file) && text.includes(retiredHost)) {
+    fail(`${file.replace(root, "")} still uses ${retiredHost}`);
+  }
 }
 
 const idMap = new Map();
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
   const rel = file.replace(root, "");
-  if (!html.includes('name="robots" content="noindex, nofollow"') && config.noindex) {
-    fail(`${rel} is missing the noindex robots meta`);
+  const robotsMeta = config.noindex ? "noindex, nofollow" : "index, follow";
+  if (!html.includes(`name="robots" content="${robotsMeta}"`)) {
+    fail(`${rel} robots meta is not ${robotsMeta}`);
   }
+  if (!config.noindex && html.includes("noindex")) fail(`${rel} still contains noindex`);
   if (!html.includes(`href="${config.baseUrl}`) && !html.includes(`content="${config.baseUrl}`)) {
     const canonical = html.match(/rel="canonical" href="([^"]+)"/);
     if (!canonical || !canonical[1].startsWith(config.baseUrl)) fail(`${rel} canonical is not on the configured domain`);
@@ -96,9 +102,13 @@ for (const file of htmlFiles) {
 }
 
 const robots = readFileSync(join(root, "robots.txt"), "utf8");
-if (config.robotsDisallowAll && robots !== "User-agent: *\nDisallow: /\n") fail("robots.txt is not the restrictive file");
+const expectedRobots = config.robotsDisallowAll
+  ? "User-agent: *\nDisallow: /\n"
+  : `User-agent: *\nAllow: /\n\nSitemap: ${config.baseUrl}/sitemap.xml\n`;
+if (robots !== expectedRobots) fail("robots.txt does not match site.config.json");
 const cname = readFileSync(join(root, "CNAME"), "utf8").trim();
-if (cname !== "mcdecorating.wholelottasites.co.uk") fail(`CNAME was changed to ${cname}`);
+const expectedHost = new URL(config.baseUrl).hostname;
+if (cname !== expectedHost) fail(`CNAME is ${cname}, expected ${expectedHost}`);
 
 const serviceSlugs = new Set(["interior-painting", "exterior-painting", "wallpapering", "ceiling-wall-repairs", "commercial-decorating"]);
 const jobIds = new Set();
@@ -129,6 +139,7 @@ const quotePages = ["index.html", "get-a-quote/index.html"].map((rel) => readFil
 for (const html of quotePages) {
   if (!html.includes(`action="${config.formAction}"`)) fail("quote form action changed");
   if (!html.includes(`name="_cc" value="${config.formCc}"`)) fail("quote form cc changed");
+  if (!html.includes(`name="_next" value="${config.baseUrl}`)) fail("quote form _next is not on the configured domain");
   if (!html.includes('name="_captcha" value="false"')) fail("quote form captcha flag changed");
   if (!html.includes('name="timescale"')) fail("quote form is missing timescale");
   if (!html.includes('name="town"')) fail("quote form is missing town");
