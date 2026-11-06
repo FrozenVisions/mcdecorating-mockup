@@ -23,6 +23,7 @@ const jobs = sortJobs(JSON.parse(readFileSync(join(root, "data/jobs.json"), "utf
 const posts = JSON.parse(readFileSync(join(root, "data/posts.json"), "utf8"))
   .slice()
   .sort((a, b) => b.date.localeCompare(a.date));
+const feedDate = posts.reduce((latest, post) => (post.date > latest ? post.date : latest), config.siteUpdated);
 const byId = Object.fromEntries(jobs.map((job) => [job.id, job]));
 const bySlug = Object.fromEntries(services.map((service) => [service.slug, service]));
 const areaBySlug = Object.fromEntries(areas.map((area) => [area.slug, area]));
@@ -154,7 +155,7 @@ writePage("/", renderPage({
   description: "Painter and decorator in Omagh, Co. Tyrone. Interior and exterior painting, wallpapering and repairs across Tyrone and Fermanagh. Free quotes: 07907 588 541.",
   image: `/images/jobs/${hero.src}.jpg`,
   main: homeMain
-}), { priority: "1.0", images: [hero, ...homeJobs] });
+}), { lastmod: feedDate, priority: "1.0", images: [hero, ...homeJobs] });
 
 const servicesMain = `${pageHero({
   crumbs: [{ name: "Home", href: "/" }, { name: "Services", href: "/services/" }],
@@ -351,7 +352,7 @@ const blogCrumbs = [{ name: "Home", href: "/" }, { name: "Advice", href: "/blog/
 const blogMain = `${pageHero({
   crumbs: blogCrumbs,
   title: "Advice for homeowners",
-  lede: "Practical notes on painting, wallpaper and the weather in Tyrone and Fermanagh. Prices mentioned in the cost article are published UK guides, not quotes from Martin.",
+  lede: "Practical notes on getting a room ready, on painting, wallpaper and the weather in Tyrone and Fermanagh. Prices mentioned in the cost article are published UK guides, not quotes from Martin.",
   config
 })}
 <section><div class="wrap"><div class="post-list">
@@ -362,10 +363,10 @@ writePage("/blog/", renderPage({
   config, areas, services, posts,
   path: "/blog/",
   title: "Painting and Decorating Advice | MC Decorating",
-  description: "Advice for homeowners in Tyrone and Fermanagh on painting costs, exterior paint for damp weather, and preparing walls for wallpaper.",
+  description: "Advice for homeowners in Tyrone and Fermanagh on preparing a room before the decorator arrives, painting costs, damp-weather exterior paint, and wallpaper.",
   main: blogMain,
   extraLd: [crumbNode(blogCrumbs, config)]
-}), { priority: "0.6" });
+}), { lastmod: feedDate, priority: "0.6" });
 
 for (const post of posts) {
   const path = `/blog/${post.slug}/`;
@@ -466,7 +467,7 @@ const rss = `<?xml version="1.0" encoding="UTF-8"?>
   <atom:link href="${xml(`${config.baseUrl}/feed.xml`)}" rel="self" type="application/rss+xml"/>
   <description>Practical painting and decorating advice for homeowners in Tyrone and Fermanagh, from MC Decorating in Omagh.</description>
   <language>en-GB</language>
-  <lastBuildDate>${new Date(`${config.siteUpdated}T09:00:00Z`).toUTCString()}</lastBuildDate>
+  <lastBuildDate>${new Date(`${feedDate}T09:00:00Z`).toUTCString()}</lastBuildDate>
 ${posts.map((post) => `  <item>
     <title>${xml(post.title)}</title>
     <link>${xml(`${config.baseUrl}/blog/${post.slug}/`)}</link>
@@ -485,7 +486,7 @@ const atom = `<?xml version="1.0" encoding="UTF-8"?>
   <title>MC Decorating advice</title>
   <link href="${xml(`${config.baseUrl}/blog/`)}"/>
   <link rel="self" href="${xml(`${config.baseUrl}/atom.xml`)}"/>
-  <updated>${config.siteUpdated}T09:00:00Z</updated>
+  <updated>${feedDate}T09:00:00Z</updated>
   <id>${xml(`${config.baseUrl}/blog/`)}</id>
   <author><name>MC Decorating</name></author>
 ${posts.map((post) => `  <entry>

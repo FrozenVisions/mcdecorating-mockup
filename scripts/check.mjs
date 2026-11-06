@@ -149,7 +149,7 @@ for (const html of quotePages) {
 
 const sitemap = readFileSync(join(root, "sitemap.xml"), "utf8");
 const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-if (locs.length !== 28) fail(`expected 28 sitemap urls, found ${locs.length}`);
+if (locs.length !== 29) fail(`expected 29 sitemap urls, found ${locs.length}`);
 for (const loc of locs) {
   if (!loc.startsWith(config.baseUrl)) fail(`sitemap loc off-domain ${loc}`);
   const path = loc.slice(config.baseUrl.length);
@@ -157,9 +157,38 @@ for (const loc of locs) {
   try { statSync(join(root, rel)); }
   catch { fail(`sitemap loc missing file ${rel}`); }
 }
-if (!readFileSync(join(root, "feed.xml"), "utf8").includes("<item>")) fail("RSS feed has no items");
-if (!readFileSync(join(root, "atom.xml"), "utf8").includes("<entry>")) fail("Atom feed has no entries");
-if ((readFileSync(join(root, "feed.xml"), "utf8").match(/<item>/g) || []).length !== posts.length) fail("RSS item count does not match posts");
+const feed = readFileSync(join(root, "feed.xml"), "utf8");
+const atom = readFileSync(join(root, "atom.xml"), "utf8");
+if (!feed.includes("<item>")) fail("RSS feed has no items");
+if (!atom.includes("<entry>")) fail("Atom feed has no entries");
+if ((feed.match(/<item>/g) || []).length !== posts.length) fail("RSS item count does not match posts");
+const latestContentDate = posts.reduce((latest, post) => (post.date > latest ? post.date : latest), config.siteUpdated);
+const expectedRssDate = new Date(`${latestContentDate}T09:00:00Z`).toUTCString();
+if (!feed.includes(`<lastBuildDate>${expectedRssDate}</lastBuildDate>`)) fail(`RSS lastBuildDate is not ${expectedRssDate}`);
+if (!atom.includes(`<updated>${latestContentDate}T09:00:00Z</updated>`)) fail(`Atom feed updated is not ${latestContentDate}`);
+function sitemapLastmod(urlPath) {
+  const marker = `<loc>${config.baseUrl}${urlPath}</loc>`;
+  const at = sitemap.indexOf(marker);
+  if (at === -1) return "";
+  const match = sitemap.slice(at, at + 200).match(/<lastmod>([^<]+)<\/lastmod>/);
+  return match ? match[1] : "";
+}
+if (sitemapLastmod("/") !== latestContentDate) fail("homepage sitemap lastmod is not the latest advice date");
+if (sitemapLastmod("/blog/") !== latestContentDate) fail("blog index sitemap lastmod is not the latest advice date");
+if ((atom.match(/<entry>/g) || []).length !== posts.length) fail("Atom entry count does not match posts");
+for (const post of posts) {
+  const built = readFileSync(join(root, "blog", post.slug, "index.html"), "utf8");
+  if (!built.includes(`<time datetime="${post.date}">`)) fail(`built post ${post.slug} is missing date ${post.date}`);
+  const marker = `<loc>${config.baseUrl}/blog/${post.slug}/</loc>`;
+  const at = sitemap.indexOf(marker);
+  if (at === -1) fail(`sitemap missing /blog/${post.slug}/`);
+  else {
+    const lastmod = sitemap.slice(at, at + 240).match(/<lastmod>([^<]+)<\/lastmod>/);
+    if (!lastmod || lastmod[1] !== post.date) fail(`sitemap lastmod for ${post.slug} is not ${post.date}`);
+  }
+  if (!feed.includes(`/blog/${post.slug}/`)) fail(`RSS feed missing /blog/${post.slug}/`);
+  if (!atom.includes(`/blog/${post.slug}/`)) fail(`Atom feed missing /blog/${post.slug}/`);
+}
 
 const gallery = readFileSync(join(root, "our-work/index.html"), "utf8");
 if (!gallery.includes('src="/js/gallery.js"')) fail("gallery page is missing gallery.js");
