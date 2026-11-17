@@ -149,7 +149,7 @@ for (const html of quotePages) {
 
 const sitemap = readFileSync(join(root, "sitemap.xml"), "utf8");
 const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-if (locs.length !== 32) fail(`expected 32 sitemap urls, found ${locs.length}`);
+if (locs.length !== 33) fail(`expected 33 sitemap urls, found ${locs.length}`);
 for (const loc of locs) {
   if (!loc.startsWith(config.baseUrl)) fail(`sitemap loc off-domain ${loc}`);
   const path = loc.slice(config.baseUrl.length);
