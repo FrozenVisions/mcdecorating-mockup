@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://mcdecoratingni.co.uk/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-20</lastmod>
     <image:image>
       <image:loc>https://mcdecoratingni.co.uk/images/jobs/hallway-marble.jpg</image:loc>
       <image:title>Marble-effect hallway and stairs</image:title>
@@ -523,8 +523,17 @@
   </url>
   <url>
     <loc>https://mcdecoratingni.co.uk/blog/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-11-20</lastmod>
 
+  </url>
+  <url>
+    <loc>https://mcdecoratingni.co.uk/blog/interior-painter-omagh/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <image:image>
+      <image:loc>https://mcdecoratingni.co.uk/images/jobs/stair-panel-black-rail.jpg</image:loc>
+      <image:title>Panelled stairs with a black rail</image:title>
+      <image:caption>Panelled stairwell painted in cream and stone, with the handrail and spindles finished in black.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://mcdecoratingni.co.uk/blog/landlord-painting-and-decorating-omagh/</loc>
